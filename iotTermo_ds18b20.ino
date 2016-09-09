@@ -1,10 +1,11 @@
+/*
+Dalas 18b20 to mqtt
+ */
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 #include <PubSubClient.h>
-
-#define POWER_PIN 14
-#define ONE_WIRE_BUS 2
+#include "config.h"
 
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
@@ -12,19 +13,8 @@ DeviceAddress insideThermometer;
 
 float t; //Temperature
 int error;
-// wifi
-char* AP = "IoT";
-char* AP_KEY = "passkey";
-// mqtt
-// IPAddress MQTT_HOST(192,168,88,100);
-char* MQTT_HOST = 'mqtt.42do.ru'
-int   MQTT_PORT = 20000;
-char* MQTT_USER = "test";
-char* MQTT_PASS = "test";
-#define TIMEOUT 5 * 60 // 5мин
-char tmpTOPIC[64] ;
 char tmpMSG[64];
-char* MQTT_TOPIC = "/user/room3/";
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -80,7 +70,7 @@ void wifi_connect(){
     return;
   }
 
-  WiFi.begin(AP, AP_KEY);
+  WiFi.begin(ACCESS_POINT, ACCESS_POINT_KEY);
   Serial.print("Connecting");
   int i = 50;
   while (WiFi.status() != WL_CONNECTED)
@@ -138,9 +128,8 @@ void mqtt_pub(){
   }
 
   Serial.println("publish mqtt");
-  sprintf(tmpTOPIC,"%st", MQTT_TOPIC);
   dtostrf(t, 2, 2, tmpMSG);
-  client.publish(tmpTOPIC, tmpMSG);
+  client.publish(MQTT_TOPIC, tmpMSG);
 }
 
 // tasks
